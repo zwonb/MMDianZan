@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">微信朋友圈点赞</string>
+    <string name="click_content">请开启此服务以便程序正常运行\n如果不能正常运行，请关闭此服务然后重新打开</string>
+
+</resources>

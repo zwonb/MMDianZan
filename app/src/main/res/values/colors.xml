@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#009688</color>
+    <color name="colorPrimaryDark">#00796B</color>
+    <color name="colorAccent">#4CAF50</color>
+
+    <color name="text333">#333333</color>
+
+    <color name="loginStart">#00796B</color>
+    <color name="loginCenter">#009688</color>
+    <color name="loginEnd">#00b7a6</color>
+
+    <color name="stop0">#ce00b7a6</color>
+    <color name="stop1">#ce00796b</color>
+</resources>
