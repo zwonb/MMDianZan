@@ -171,12 +171,16 @@ public class MMDianZanService extends AccessibilityService {
             if (mDateSelect != -1 && TextUtils.equals(text, mDate)) {
                 nodeInfo.recycle();
                 //如果达到设置的时间则不再执行
+                this.performGlobalAction(GLOBAL_ACTION_BACK);
+                StopView.getInstance(this).stopView();
                 return;
             }
             if (mDateSelect == -1 && text != null) {
                 String timeText = text.toString();
                 //如果没有找到*小时前的说说则直接不执行
                 if (timeText.contains("天")) {
+                    this.performGlobalAction(GLOBAL_ACTION_BACK);
+                    StopView.getInstance(this).stopView();
                     return;
                 }
                 if (timeText.endsWith("小时前")) {
@@ -185,6 +189,8 @@ public class MMDianZanService extends AccessibilityService {
                     if (!s.isEmpty()) {
                         //超过设置的时间则不再执行
                         if (mTimeLimit < Integer.parseInt(s)) {
+                            this.performGlobalAction(GLOBAL_ACTION_BACK);
+                            StopView.getInstance(this).stopView();
                             return;
                         }
                     }
@@ -235,16 +241,6 @@ public class MMDianZanService extends AccessibilityService {
         //重复循环
         sendHandlerMessage(14, null);
     }
-
-    //滚动列表
-//    private void scrollListView(AccessibilityNodeInfo listView) {
-//        if (listView.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)) {
-//            mPosition = 0;
-//            listView.recycle();
-//            sendHandlerMessage(14, null);
-//        }
-//    }
-
 
     @Nullable
     private AccessibilityNodeInfo getByViewId(String viewId) {

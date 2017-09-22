@@ -206,7 +206,8 @@ public class DianZanActivity extends AppCompatActivity implements View.OnClickLi
     @TargetApi(Build.VERSION_CODES.M)
     public void requestDrawOverLays() {
         if (Build.VERSION.SDK_INT < 23) {
-            new StopView(this).showView();
+            StopView.getInstance(this).showView();
+//            new StopView(this).showView();
             launchApp(this);
             mPreferences.put("stop", false);
             return;
@@ -217,7 +218,7 @@ public class DianZanActivity extends AppCompatActivity implements View.OnClickLi
             startActivityForResult(intent, OVERLAY_PERMISSION_REQ_CODE);
         } else {
             mPreferences.put("stop", false);
-            new StopView(this).showView();
+            StopView.getInstance(this).showView();
             launchApp(this);
             // Already hold the SYSTEM_ALERT_WINDOW permission, do addview or something.
         }
