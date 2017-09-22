@@ -10,9 +10,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.IdRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioGroup;
@@ -22,12 +25,13 @@ import android.widget.Toast;
  * Created by zyb on 2017/9/20.
  */
 
-public class DianZanActivity extends AppCompatActivity implements View.OnClickListener {
+public class DianZanActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher {
 
     private RadioGroup mRadioGroup;
     private EditText mClickEdit;
     private ToolSharedPreferences mPreferences;
     private AlertDialog mEnabledDialog;
+    private EditText mTimeEdit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +50,7 @@ public class DianZanActivity extends AppCompatActivity implements View.OnClickLi
 
         mRadioGroup = (RadioGroup) findViewById(R.id.dian_zan_radio_group);
         mClickEdit = (EditText) findViewById(R.id.dian_zan_click_sec);
+        mTimeEdit = (EditText) findViewById(R.id.dian_zan_time);
 
         //设置点赞的限制
         int dateSelect = (int) mPreferences.get("dianZanDate", -1);
@@ -56,12 +61,29 @@ public class DianZanActivity extends AppCompatActivity implements View.OnClickLi
         } else if (dateSelect == 2) {
             mRadioGroup.check(R.id.radio_no_limit);
         }
+        int timeLimit = (int) mPreferences.get("timeLimit", -1);
+        if (timeLimit != -1) {
+            String text = String.valueOf(timeLimit);
+            mTimeEdit.setText(text);
+            mTimeEdit.setSelection(text.length());
+        }
+
         //设置点击的间隔秒
         String clickSec = String.valueOf(mPreferences.get("clickSec", 1));
         mClickEdit.setText(clickSec);
         mClickEdit.setSelection(clickSec.length());
 
         findViewById(R.id.dian_zan_start).setOnClickListener(this);
+        mTimeEdit.addTextChangedListener(this);
+        mRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                if (!mTimeEdit.getText().toString().isEmpty()) {
+                    mTimeEdit.setText("");
+                    mPreferences.put("timeLimit", 0);
+                }
+            }
+        });
     }
 
     @Override
@@ -80,11 +102,15 @@ public class DianZanActivity extends AppCompatActivity implements View.OnClickLi
                         break;
                 }
 
+                String time = mTimeEdit.getText().toString();
+                if (!time.isEmpty()) {
+                    mPreferences.put("dianZanDate", -1);
+                    mPreferences.put("timeLimit", Integer.parseInt(time));
+                }
+
                 String string = mClickEdit.getText().toString();
                 if (TextUtils.equals(string, "") || TextUtils.equals(string, "0")) {
                     Toast.makeText(this, "请输入合理的秒数", Toast.LENGTH_SHORT).show();
-                    mClickEdit.setFocusable(true);
-                    mClickEdit.setSelection(string.length());
                     return;
                 } else {
                     mPreferences.put("clickSec", Integer.parseInt(string));
@@ -92,6 +118,26 @@ public class DianZanActivity extends AppCompatActivity implements View.OnClickLi
 
                 requestDrawOverLays();
                 break;
+        }
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        if (s.toString().isEmpty()) {
+            mRadioGroup.clearCheck();
+        }
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        String string = s.toString();
+        if (string.equals("0") || !string.isEmpty() && Integer.parseInt(string) >= 24) {
+            mTimeEdit.setText("");
+            Toast.makeText(this, "设置的时间必须小于24小时", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -13,7 +13,7 @@ public class ToolUtil {
 
     public static boolean isAccessibilityEnabled(Context context) {
         int accessibilityEnabled = 0;
-        final String ACCESSIBILITY_SERVICE = "com.zwonb.mmaddfriend/com.zwonb.mmaddfriend.MMDianZanService";
+        final String ACCESSIBILITY_SERVICE = "com.zwonb.mmdianzan/com.zwonb.mmdianzan.MMDianZanService";
         boolean accessibilityFound = false;
         try {
             accessibilityEnabled = Secure.getInt(context.getApplicationContext().getContentResolver(), Secure.ACCESSIBILITY_ENABLED);

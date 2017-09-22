@@ -26,6 +26,8 @@ public class MMDianZanService extends AccessibilityService {
     private int mPosition; //记录当前说说列表是第几个
     private String mDate = ""; //记录说说发的时间
     private ToolSharedPreferences mPreferences;
+    private int mDateSelect;
+    private int mTimeLimit;
 
     @Override
     protected void onServiceConnected() {
@@ -48,14 +50,16 @@ public class MMDianZanService extends AccessibilityService {
 
         switch (event.getEventType()) {
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-                int dateSelect = (int) mPreferences.get("dianZanDate", -1);
+                mDateSelect = (int) mPreferences.get("dianZanDate", -1);
                 mClickSec = (int) mPreferences.get("clickSec", 1);
-                if (dateSelect == 0) {
+                if (mDateSelect == 0) {
                     mDate = "昨天";
-                } else if (dateSelect == 1) {
+                } else if (mDateSelect == 1) {
                     mDate = "2天前";
-                } else if (dateSelect == 2) {
+                } else if (mDateSelect == 2) {
                     mDate = "";
+                } else if (mDateSelect == -1) {
+                    mTimeLimit = (int) mPreferences.get("timeLimit", -1);
                 }
                 //点击发现
                 if (clickMainFind()) {
@@ -157,14 +161,34 @@ public class MMDianZanService extends AccessibilityService {
         if (((boolean) mPreferences.get("stop", false))) {
             return;
         }
+
         //发布的时间
         List<AccessibilityNodeInfo> date = getByViewIdList("com.tencent.mm:id/csg");
         if (date != null && date.size() > mPosition) {
             AccessibilityNodeInfo nodeInfo = date.get(mPosition);
-            if (TextUtils.equals(nodeInfo.getText(), mDate)) {
+            //设置昨天，2天前，无限制
+            CharSequence text = nodeInfo.getText();
+            if (mDateSelect != -1 && TextUtils.equals(text, mDate)) {
                 nodeInfo.recycle();
                 //如果达到设置的时间则不再执行
                 return;
+            }
+            if (mDateSelect == -1 && text != null) {
+                String timeText = text.toString();
+                //如果没有找到*小时前的说说则直接不执行
+                if (timeText.contains("天")) {
+                    return;
+                }
+                if (timeText.endsWith("小时前")) {
+                    String[] split = timeText.split("小时前");
+                    String s = split[0];
+                    if (!s.isEmpty()) {
+                        //超过设置的时间则不再执行
+                        if (mTimeLimit < Integer.parseInt(s)) {
+                            return;
+                        }
+                    }
+                }
             }
         }
 
